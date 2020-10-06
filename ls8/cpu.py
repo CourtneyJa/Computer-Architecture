@@ -2,12 +2,22 @@
 
 import sys
 
+HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+
+
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        #need ram, register, and program counter?
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
+        self.reg[7] = 0xF4
+        self.halted = False
 
     def load(self):
         """Load a program into memory."""
@@ -39,6 +49,12 @@ class CPU:
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
+    
+    def ram_read(self, key):
+        return self.ram[key]
+
+    def ram_write(self, key, value):
+        self.reg[key] = value
 
     def trace(self):
         """
@@ -62,4 +78,23 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        self.running = True
+                
+        while not self.halted:
+            instr_execute = self.ram_read(self.pc)
+            reg_idx_1 = self.memory(self.pc + 1)
+            reg_idx_2 = self.memory(self.pc + 2)
+            self. execute_instruction(instr_execute, reg_idx_1, reg_idx_2)
+
+    def execute_instruction(self, command, reg_idx_1, reg_idx_2):
+        if command == HLT:
+           self.halted = True
+           self.pc += 1
+        elif command == LDI:
+            self.reg[reg_idx_1] = reg_idx_2
+            self.pc += 3
+        elif command == PRN:
+            print(self.reg[reg_idx_1])
+            self.pc += 2
+
+        
