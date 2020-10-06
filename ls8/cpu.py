@@ -82,8 +82,8 @@ class CPU:
                 
         while not self.halted:
             instr_execute = self.ram_read(self.pc)
-            reg_idx_1 = self.memory(self.pc + 1)
-            reg_idx_2 = self.memory(self.pc + 2)
+            reg_idx_1 = self.ram_read(self.pc + 1)
+            reg_idx_2 = self.ram_read(self.pc + 2)
             self. execute_instruction(instr_execute, reg_idx_1, reg_idx_2)
 
     def execute_instruction(self, command, reg_idx_1, reg_idx_2):
