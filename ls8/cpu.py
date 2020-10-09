@@ -6,6 +6,9 @@ HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
+SP = 7
 
 class CPU:
     """Main CPU class."""
@@ -16,7 +19,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
-        self.reg[7] = 0xF4
+        self.reg[SP] = 0xF4
         self.halted = False
 
     def load(self):
@@ -102,5 +105,33 @@ class CPU:
             reg_b = self.ram_read(self.pc + 2)
             self.reg[reg_a] = self.reg[reg_a] * self.reg[reg_b]
             self.pc += 3
+        elif command == PUSH:
+            #to-dos
+            #1 decrement the stack pointer
+            self.reg[SP] -= 1
+            #2 get the reg num to push
+            reg_num = self.ram_read(self.pc +1)
+            #3 get the value to push
+            value = self.reg[reg_num]
+            #4 copy the value to the stack pointer addy
+            stack_head_addy = self.reg[SP]
+            self.ram[stack_head_addy] = value
+            #5 increment program counter
+            self.pc +=2
+        elif command == POP:
+            #similar to push in what needs to be done
+            #1 get reg that you'll pop into
+            reg_num = self.ram_read(self.pc + 1)
+            #2 get addy for the top of the stack
+            stack_head_addy = self.reg[SP]
+            #3 get value thats at the top
+            value = self.ram_read(stack_head_addy)
+            #4 store that value in a reg
+            self.reg[reg_num] = value
+            #5 increment the stack pointer
+            self.reg[SP] += 1
+            #6 increment the program counter 
+            self.pc += 2
+            
 
         
