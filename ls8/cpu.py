@@ -10,6 +10,12 @@ PUSH = 0b01000101
 POP = 0b01000110
 SP = 7
 
+#for Computer Architecture Sprint
+CMP = 0b10100111
+JMP = 0b01010100 
+JEQ = 0b01010101 
+JNE = 0b01010110
+
 class CPU:
     """Main CPU class."""
 
@@ -20,6 +26,7 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.reg[SP] = 0xF4
+        self.flag = 0B00000000
         self.halted = False
 
     def load(self):
@@ -50,14 +57,21 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        #code for sprint
+        elif op == "CMP":
+            if self.reg[reg_a] < self.reg[reg_b]:
+                self.flag = 0b00000100
+            if self.reg[reg_a] > self.reg[reg_b]:
+                self.flag = 0b00000010
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.flag = 0b00000001
         else:
             raise Exception("Unsupported ALU operation")
     
     def ram_read(self, address):
         return self.ram[address]
 
-    def ram_write(self, address, value):
+    def ram_write(self, value, address):
         self.reg[address] = value
 
     def trace(self):
@@ -132,6 +146,27 @@ class CPU:
             self.reg[SP] += 1
             #6 increment the program counter 
             self.pc += 2
-            
 
-        
+###code for sprint###
+        elif command == CMP:
+            opr_a = self.ram_read(self.pc + 1)
+            opr_b = self.ram_read(self.pc + 2)
+            self.alu("CMP", opr_a, opr_b)
+            self.pc += 3
+        elif command == JMP:
+            register_num = self.ram_read(self.pc + 1)
+            self.pc = self.reg[register_num]
+        elif command == JEQ:
+            if self.flag == 0b00000001:
+                register_num = self.ram_read(self.pc + 1)
+                self.pc = self.reg[register_num]
+            else:
+                self.pc += 2
+        elif command == JNE:
+            if self.flag != 0b00000001:
+                register_num = self.ram_read(self.pc + 1)
+                self.pc = self.reg[register_num]
+            else:
+                self.pc +=2
+        else:
+            self.pc +=1
